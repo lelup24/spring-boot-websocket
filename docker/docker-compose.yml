@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  blog_db:
+    image: postgres:latest
+    container_name: slack_db
+    environment:
+      POSTGRES_DB: slack
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - slack_db_data:/var/lib/postgresql/data
+    ports:
+      - "7432:5432"
+
+
+volumes:
+  slack_db_data:

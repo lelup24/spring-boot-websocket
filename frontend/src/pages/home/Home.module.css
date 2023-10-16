@@ -1,0 +1,11 @@
+.nav {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+}

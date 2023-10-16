@@ -1,0 +1,3 @@
+rootProject.name = 'slackday'
+include 'websocket'
+include 'frontend'

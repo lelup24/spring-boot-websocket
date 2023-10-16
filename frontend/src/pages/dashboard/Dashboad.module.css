@@ -1,0 +1,23 @@
+.table-wrapper {
+    overflow: auto;
+}
+
+.messages {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+}
+
+.table {
+    width: 100%;
+    min-width: 50rem;
+    table-layout: fixed;
+}
+
+td {
+    width: 5rem;
+}
