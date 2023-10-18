@@ -1,21 +1,19 @@
 package de.kipper.websocket.configs.security;
 
+import static de.kipper.websocket.configs.ClockConfig.DEFAULT_ZONE_ID;
+
+import de.kipper.websocket.common.CurrentUser;
+import de.kipper.websocket.data.tables.daos.SessionDao;
+import de.kipper.websocket.data.tables.daos.UserEntityDao;
+import de.kipper.websocket.data.tables.pojos.Session;
+import de.kipper.websocket.data.tables.pojos.UserEntity;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import de.kipper.websocket.common.CurrentUser;
-import de.kipper.websocket.configs.ClockConfig;
-import de.kipper.websocket.data.tables.daos.SessionDao;
-import de.kipper.websocket.data.tables.daos.UserEntityDao;
-import de.kipper.websocket.data.tables.pojos.Session;
-import de.kipper.websocket.data.tables.pojos.UserEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static de.kipper.websocket.configs.ClockConfig.DEFAULT_ZONE_ID;
 
 @Service
 public class SessionService {

@@ -36,7 +36,6 @@ public class JwtTokenUtil {
   }
 
   public String createRefreshToken(final Authentication authentication) {
-
     return JWT.create()
         .withSubject(authentication.getName())
         .withIssuer("slack-backend")

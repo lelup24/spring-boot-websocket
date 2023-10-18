@@ -9,9 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.messaging.SessionConnectedEvent;
-import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
 @Component
 public class WebSocketListener {
@@ -25,32 +26,46 @@ public class WebSocketListener {
   }
 
   @EventListener
-  public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+  public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
     logger.info("Received a new web socket connection");
 
-    Principal principal = event.getUser();
+    final Principal principal = event.getUser();
+    final StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+
+    if (accessor.getDestination() == null) {
+      throw new RuntimeException();
+    }
+
     if (principal != null) {
       logger.info("User Connected : " + principal.getName());
+
       final String zeit = new SimpleDateFormat("HH:mm:ss").format(new Date());
-      MessageOutputDto chatMessage =
+      final MessageOutputDto chatMessage =
           new MessageOutputDto(
               "System", principal.getName() + " joined the chat!", zeit, MessageType.JOIN);
-      messagingTemplate.convertAndSend("/topic/messages", chatMessage);
+      messagingTemplate.convertAndSend(accessor.getDestination(), chatMessage);
     }
   }
 
   @EventListener
-  public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+  public void handleWebSocketDisconnectListener(SessionUnsubscribeEvent event) {
 
-    Principal principal = event.getUser();
+    final Principal principal = event.getUser();
+    final StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+
+    if (accessor.getDestination() == null) {
+      throw new RuntimeException();
+    }
+
     if (principal != null) {
       logger.info("User Disconnected : " + principal.getName());
+
       final String zeit = new SimpleDateFormat("HH:mm:ss").format(new Date());
-      MessageOutputDto chatMessage =
+      final MessageOutputDto chatMessage =
           new MessageOutputDto(
               "System", principal.getName() + " left the chat!", zeit, MessageType.LEAVE);
 
-      messagingTemplate.convertAndSend("/topic/messages", chatMessage);
+      messagingTemplate.convertAndSend(accessor.getDestination(), chatMessage);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Client } from "@stomp/stompjs";
+import { Client, StompSubscription } from "@stomp/stompjs";
 import {
   MessageDisplayModel,
   MessageInputModel,
@@ -10,13 +10,15 @@ import * as SockJS from "sockjs-client";
 export class ChatService {
   private messages: MessageDisplayModel[] = [];
   private callbackFn!: (v: unknown) => unknown;
+  private subscription!: StompSubscription;
+  private room!: string;
 
   private client!: Client;
 
   public connect(callbackFn: (v: unknown) => unknown) {
     this.callbackFn = callbackFn;
-    const token = localStorage.getItem("access-token");
 
+    const token = localStorage.getItem("access-token");
     const ws = new SockJS(
       "/ws" + "?access-token=" + localStorage.getItem("access-token"),
     );
@@ -25,12 +27,11 @@ export class ChatService {
       webSocketFactory: () => ws,
       connectHeaders: { Authorization: "Bearer " + token },
       onConnect: () => {
-        this.client.subscribe("/topic/messages", (message) =>
-          this.handleMessage(message.body),
-        );
         this.client.subscribe("/user/queue/user", (message) => {
           this.handleMessage(message.body);
         });
+
+        this.joinRoom("1");
 
         this.client.subscribe("/user/queue/errors", (message) => {
           alert(message);
@@ -62,12 +63,12 @@ export class ChatService {
 
     if (!msg.receiver && msg.messageType === MessageType.CHAT) {
       this.client.publish({
-        destination: "/app/message",
+        destination: "/app/message/" + this.room,
         body: JSON.stringify(msg),
       });
     } else {
       this.client.publish({
-        destination: "/app/private-message",
+        destination: "/app/private-message/" + this.room,
         body: JSON.stringify(msg),
       });
     }
@@ -75,8 +76,25 @@ export class ChatService {
 
   public disconnect() {
     if (this.client !== null) {
+      this.subscription.unsubscribe({
+        destination: "/topic/messages/" + this.room,
+      });
       this.client.deactivate().then();
     }
+  }
+
+  public joinRoom(room: string) {
+    this.room = room;
+    this.subscription = this.client.subscribe(
+      "/topic/messages/" + this.room,
+      (message) => this.handleMessage(message.body),
+    );
+  }
+
+  public leaveRoom() {
+    this.subscription.unsubscribe({
+      destination: "/topic/messages/" + this.room,
+    });
   }
 
   private errorCallBack(error: Error) {
