@@ -28,7 +28,7 @@ public class MessageController {
   @MessageMapping("/message/{room}")
   @SendTo("/topic/messages/{room}")
   public MessageOutputDto sendMessagePerId(
-      @DestinationVariable String room, final MessageDto messageDto, Principal principal) {
+     final MessageDto messageDto, Principal principal) {
     final String zeit = new SimpleDateFormat("HH:mm:ss").format(new Date());
     return new MessageOutputDto(
         principal.getName(), messageDto.getMessage(), zeit, messageDto.getMessageType());

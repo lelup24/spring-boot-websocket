@@ -68,7 +68,7 @@ export class ChatService {
       });
     } else {
       this.client.publish({
-        destination: "/app/private-message/" + this.room,
+        destination: "/app/private-message",
         body: JSON.stringify(msg),
       });
     }

@@ -39,6 +39,12 @@ public class WebSocketInterceptor implements ChannelInterceptor {
       throw new AccessDeniedException("Token is not valid");
     }
 
+    if (StompCommand.MESSAGE.equals(accessor.getCommand())
+        && (Objects.requireNonNull(accessor.getDestination()).startsWith("/topic")
+            || Objects.requireNonNull(accessor.getDestination()).startsWith("/queue"))) {
+      throw new AccessDeniedException("Messaging to topic/queue is not allowed");
+    }
+
     if (!StompCommand.CONNECT.equals(accessor.getCommand())) {
       return message;
     }
